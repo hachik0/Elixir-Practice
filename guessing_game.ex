@@ -5,12 +5,17 @@ defmodule GuessingGame do
   # "bigger" -> bigger(low, high)
   # "smaller" -> smaller(low, high)
   # anything else -> tell user to enter a valid response
+  def guess(a, b) when a > b, do: guess(b, a)
+
   def guess(low, high) do
     answer = IO.gets "Hmm... maybe you're thinking of #{mid(low, high)}?\n"
     case String.trim(answer) do
       "bigger" -> bigger(low, high)
       "smaller" -> smaller(low, high)
       "yes" -> "I found your number!"
+      _ ->
+        IO.puts(~s{Type "bigger", "smaller", or "yes"})
+        guess(low, high)
     end
   end
 
