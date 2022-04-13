@@ -13,6 +13,11 @@ defmodule MinimalTodo do
       {:ok, body}       -> body
       {:error, reason}  -> IO.puts ~s(Could not open file "#{filename}"\n)
                            IO.puts ~s("#{:file.format_error reason}"\n)
+                           start()
     end
+  end
+
+  def parse(body) do
+    lines = String.split(body, ~r{(\r\n|\n|\r)})
   end
 end
