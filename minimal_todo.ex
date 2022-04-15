@@ -1,25 +1,21 @@
 defmodule MinimalTodo do
   def start do
-    filename = IO.gets("Name of .csv to load: ") |> String.trim
-    read(filename)
-      |> parse
-      |> get_command
-    # ask user for command
-    # (read todos, add todos, delete todos, load file, save files)
+    load_csv()
   end
 
   def get_command(data) do
     prompt = """
-  Type the first letter of the command you want to run
-  R)ead Todos   A)dd a todo   D)elete a Todo  L)oad a .csv    S)ave a .csv"
-  """
+    Type the first letter of the command you want to run
+    R)ead Todos   A)dd a todo   D)elete a Todo  L)oad a .csv    S)ave a .csv"
+    """
     command = IO.gets(prompt)
-      |> String.trim
-      |> String.downcase
+    |> String.trim
+    |> String.downcase
 
     case command do
       "r"     -> show_todos(data)
       "d"     -> delete_todo(data)
+      "l"     -> load_csv()
       "q"     -> "Goodbye!"
       _       -> get_command(data)
     end
@@ -39,13 +35,11 @@ defmodule MinimalTodo do
     end
   end
 
-  def read(filename) do
-    case File.read(filename) do
-      {:ok, body}       -> body
-      {:error, reason}  -> IO.puts ~s(Could not open file "#{filename}"\n)
-                           IO.puts ~s("#{:file.format_error reason}"\n)
-                           start()
-    end
+  def load_csv() do
+    filename = IO.gets("Name of .csv to load: ") |> String.trim
+    read(filename)
+      |> parse
+      |> get_command
   end
 
   def parse(body) do
@@ -64,6 +58,15 @@ defmodule MinimalTodo do
         built
       end
     end)
+  end
+
+  def read(filename) do
+    case File.read(filename) do
+      {:ok, body}       -> body
+      {:error, reason}  -> IO.puts ~s(Could not open file "#{filename}"\n)
+                           IO.puts ~s("#{:file.format_error reason}"\n)
+                           start()
+    end
   end
 
   def show_todos(data, next_command? \\ true) do
