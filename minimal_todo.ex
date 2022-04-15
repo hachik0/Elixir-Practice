@@ -3,22 +3,14 @@ defmodule MinimalTodo do
     load_csv()
   end
 
-  def get_command(data) do
-    prompt = """
-    Type the first letter of the command you want to run
-    R)ead Todos   A)dd a todo   D)elete a Todo  L)oad a .csv    S)ave a .csv"
-    """
-    command = IO.gets(prompt)
-    |> String.trim
-    |> String.downcase
-
-    case command do
-      "r"     -> show_todos(data)
-      "d"     -> delete_todo(data)
-      "l"     -> load_csv()
-      "q"     -> "Goodbye!"
-      _       -> get_command(data)
-    end
+  def add_todo(data) do
+    name = get_item_name(data)
+    titles = get_fields data
+    fields = Enum.map(titles, fn field -> field_from_user(field) end)
+    new_todo = %{name => Enum.into(fields, %{})}
+    IO.puts ~s(New todo "#{name}" added.)
+    new_data = Map.merge(data, new_todo)
+    get_command(new_data)
   end
 
   def delete_todo(data) do
@@ -32,6 +24,46 @@ defmodule MinimalTodo do
       IO.puts ~s(There is no Todo named "#{todo}"!)
       show_todos(data, false)
       delete_todo(data)
+    end
+  end
+
+  def field_from_user(name) do
+    field = IO.gets("#{name}: ") |> String.trim
+    case field do
+      _       ->  {name, field}
+    end
+  end
+
+  def get_command(data) do
+    prompt = """
+    Type the first letter of the command you want to run
+    R)ead Todos   A)dd a todo   D)elete a Todo  L)oad a .csv    S)ave a .csv"
+    """
+    command = IO.gets(prompt)
+    |> String.trim
+    |> String.downcase
+
+    case command do
+      "r"     -> show_todos(data)
+      "a"     -> add_todo(data)
+      "d"     -> delete_todo(data)
+      "l"     -> load_csv()
+      "q"     -> "Goodbye!"
+      _       -> get_command(data)
+    end
+  end
+
+  def get_fields(data) do
+    data[hd Map.keys data] |> Map.keys
+  end
+
+  def get_item_name(data) do
+    name = IO.gets("Enter the name of the new todo: ") |> String.trim()
+    if Map.has_key?(data, name) do
+      IO.puts "Todo with that name already exists\n"
+      get_item_name(data)
+    else
+      name
     end
   end
 
