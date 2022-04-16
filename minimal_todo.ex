@@ -1,6 +1,13 @@
 defmodule MinimalTodo do
   def start do
-    load_csv()
+    input = IO.gets("Would you like to create a new .csv? (y/n)\n")
+      |> String.trim
+      |> String.trim
+    if input == "y" do
+      create_initial_todo() |> get_command
+    else
+      load_csv()
+    end
   end
 
   def add_todo(data) do
@@ -11,6 +18,27 @@ defmodule MinimalTodo do
     IO.puts ~s(New todo "#{name}" added.)
     new_data = Map.merge(data, new_todo)
     get_command(new_data)
+  end
+
+  def create_header(headers) do
+    case IO.gets("Add field: ") |> String.trim do
+      ""            -> headers
+      header        -> create_header([header | headers])
+    end
+  end
+
+  def create_headers do
+    IO.puts "What data should each Todo have?\n"
+    <> "Enter field names one by one and an empty line when you're done.\n"
+    create_header([])
+  end
+
+  def create_initial_todo do
+    titles = create_headers()
+    name = get_item_name(%{})
+    fields = Enum.map(titles, &(field_from_user(&1)))
+    IO.puts ~s(New todo "#{name}" added.)
+    %{name => Enum.into(fields, %{})}
   end
 
   def delete_todo(data) do
