@@ -12,4 +12,8 @@ defmodule MiniMarkdown do
   def italics(text) do
     Regex.replace(~r/\*(.*)\*/, text, "<em>\\1</em>")
   end
+
+  def p(text) do
+    Regex.replace(~r/(\r\n|\r|\n)^)+([^\r\n]+)/, text, "<p>\\2</p>")
+  end
 end
