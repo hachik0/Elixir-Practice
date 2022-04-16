@@ -48,6 +48,7 @@ defmodule MinimalTodo do
       "a"     -> add_todo(data)
       "d"     -> delete_todo(data)
       "l"     -> load_csv()
+      "s"     -> save_csv(data)
       "q"     -> "Goodbye!"
       _       -> get_command(data)
     end
@@ -98,6 +99,29 @@ defmodule MinimalTodo do
       {:error, reason}  -> IO.puts ~s(Could not open file "#{filename}"\n)
                            IO.puts ~s("#{:file.format_error reason}"\n)
                            start()
+    end
+  end
+
+  def prepare_csv(data) do
+    headers = ["Item" | get_fields data]
+    items = Map.keys(data)
+    item_rows = Enum.map(items, fn item ->
+      [item | Map.values(data[item])]
+    end)
+    rows = [headers | item_rows]
+    row_strings = Enum.map(rows, &(Enum.join(&1, ",")))
+    Enum.join(row_strings, "\n")
+  end
+
+  def save_csv(data) do
+    filename = IO.gets("Name of .csv to save: ") |> String.trim
+    filedata = prepare_csv(data)
+    case File.write(filename, filedata) do
+      :ok               -> IO.puts "CSV saved"
+                           get_command(data)
+      {:error, reason}  -> IO.puts ~s(Could not save file "#{filename}")
+                           IO.puts ~s(#{:file.format_error reason}"\n")
+                           get_command(data)
     end
   end
 
